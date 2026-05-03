@@ -14,6 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach (array_filter(array_map('trim', explode(';', (string) $sql))) as $statement) {
             $pdo->exec($statement);
         }
+        $columnCheck = $pdo->query("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'packages' AND COLUMN_NAME = 'photo_path'");
+        if ((int) $columnCheck->fetchColumn() === 0) {
+            $pdo->exec('ALTER TABLE packages ADD COLUMN photo_path VARCHAR(255) NULL AFTER image_theme');
+        }
         $installed = true;
         flash('success', 'Database installed. Admin login: admin@way2go.test / admin123');
     } catch (Throwable $e) {
