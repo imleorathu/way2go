@@ -14,14 +14,18 @@ function render_header(string $title): void
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="application-name" content="<?= APP_NAME ?>">
+        <meta name="apple-mobile-web-app-title" content="<?= APP_NAME ?>">
         <title><?= e($title) ?> | <?= APP_NAME ?></title>
-        <link rel="stylesheet" href="<?= url('public/app.css') ?>">
-        <script defer src="<?= url('public/app.js') ?>"></script>
+        <link rel="icon" type="image/png" href="<?= asset_url('way2go-icon.png') ?>">
+        <link rel="apple-touch-icon" href="<?= asset_url('way2go-icon.png') ?>">
+        <link rel="stylesheet" href="<?= asset_url('app.css') ?>">
+        <script defer src="<?= asset_url('app.js') ?>"></script>
     </head>
     <body>
     <header class="topbar">
         <a class="brand" href="<?= url() ?>">
-            <span class="brand-mark">W</span>
+            <img class="brand-logo" src="<?= asset_url('way2go-icon.png') ?>" alt="<?= APP_NAME ?> icon">
             <span><?= APP_NAME ?></span>
         </a>
         <nav class="nav">
@@ -54,8 +58,34 @@ function render_footer(): void
     ?>
     </main>
     <footer class="footer">
-        <span><?= APP_NAME ?> travel operations platform</span>
-        <span>Packages, reservations, customers, and reports</span>
+        <div class="footer-brand">
+            <a class="brand" href="<?= url() ?>">
+                <img class="brand-logo" src="<?= asset_url('way2go-icon.png') ?>" alt="<?= APP_NAME ?> icon">
+                <span><?= APP_NAME ?></span>
+            </a>
+            <p>Curated Sri Lanka travel packages, reservations, and customer support in one simple booking platform.</p>
+        </div>
+        <div class="footer-links">
+            <h2>Follow us</h2>
+            <div class="social-links" aria-label="Social media links">
+                <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+                <a href="https://facebook.com" target="_blank" rel="noopener">Facebook</a>
+                <a href="https://tiktok.com" target="_blank" rel="noopener">TikTok</a>
+                <a href="https://youtube.com" target="_blank" rel="noopener">YouTube</a>
+            </div>
+        </div>
+        <div class="footer-links">
+            <h2>Quick links</h2>
+            <a href="<?= url() ?>">Packages</a>
+            <a href="<?= url('auth/login.php') ?>">Login</a>
+            <a href="<?= url('auth/register.php') ?>">Register</a>
+        </div>
+        <div class="footer-links">
+            <h2>Contact</h2>
+            <span>Colombo, Sri Lanka</span>
+            <a href="mailto:hello@way2go.test">hello@way2go.test</a>
+            <a href="tel:+94778164677">+94 77 816 4677</a>
+        </div>
     </footer>
     </body>
     </html>

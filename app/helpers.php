@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/database.php';
 
-function e(?string $value): string
+function e(mixed $value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
@@ -11,6 +11,23 @@ function e(?string $value): string
 function url(string $path = ''): string
 {
     return BASE_URL . '/' . ltrim($path, '/');
+}
+
+function public_path(string $path): string
+{
+    return dirname(__DIR__) . '/public/' . ltrim($path, '/');
+}
+
+function asset_url(string $path): string
+{
+    $url = url('public/' . ltrim($path, '/'));
+    $file = public_path($path);
+
+    if (is_file($file)) {
+        $url .= '?v=' . filemtime($file);
+    }
+
+    return $url;
 }
 
 function redirect(string $path): never
@@ -111,4 +128,70 @@ function package_audiences(): array
 function package_audience_label(?string $audience): string
 {
     return package_audiences()[$audience ?? ''] ?? 'Individuals';
+}
+
+function package_photo_url(?string $photoPath): ?string
+{
+    if (!$photoPath) {
+        return null;
+    }
+
+    $file = dirname(__DIR__) . '/' . ltrim($photoPath, '/');
+    if (!is_file($file)) {
+        return null;
+    }
+
+    return url($photoPath);
+}
+
+function save_package_photo(array $file): ?string
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('The package photo could not be uploaded.');
+    }
+
+    if (($file['size'] ?? 0) > 2 * 1024 * 1024) {
+        throw new RuntimeException('Package photos must be 2MB or smaller.');
+    }
+
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpName);
+    $extensions = [
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+    ];
+
+    if (!isset($extensions[$mime])) {
+        throw new RuntimeException('Upload a JPG, PNG, or WebP package photo.');
+    }
+
+    $uploadDir = dirname(__DIR__) . '/public/uploads/packages';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0775, true);
+    }
+
+    $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
+    $destination = $uploadDir . '/' . $filename;
+    if (!move_uploaded_file($tmpName, $destination)) {
+        throw new RuntimeException('The package photo could not be saved.');
+    }
+
+    return 'public/uploads/packages/' . $filename;
+}
+
+function delete_package_photo(?string $photoPath): void
+{
+    if (!$photoPath || !str_starts_with($photoPath, 'public/uploads/packages/')) {
+        return;
+    }
+
+    $path = dirname(__DIR__) . '/' . $photoPath;
+    if (is_file($path)) {
+        unlink($path);
+    }
 }

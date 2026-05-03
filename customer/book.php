@@ -36,7 +36,12 @@ render_header('Book package');
 ?>
 <section class="split">
     <article class="package-card <?= e($package['image_theme']) ?>">
-        <div class="package-art" aria-hidden="true"></div>
+        <?php $photoUrl = package_photo_url($package['photo_path'] ?? null); ?>
+        <?php if ($photoUrl): ?>
+            <img class="package-photo large" src="<?= e($photoUrl) ?>" alt="<?= e($package['title']) ?>">
+        <?php else: ?>
+            <div class="package-art" aria-hidden="true"></div>
+        <?php endif; ?>
         <div class="package-body">
             <div class="pill-row">
                 <span class="pill"><?= e($package['destination']) ?></span>
